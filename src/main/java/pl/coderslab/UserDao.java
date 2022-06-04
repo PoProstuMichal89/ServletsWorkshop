@@ -1,7 +1,7 @@
-package pl.coderslab.entity;
+package pl.coderslab;
 
 import org.mindrot.jbcrypt.BCrypt;
-import pl.coderslab.DbUtil;
+import pl.coderslab.utils.DbUtil;
 
 import java.sql.*;
 import java.util.Arrays;
@@ -13,7 +13,7 @@ public class UserDao {
             "INSERT INTO users(username, email, password) VALUES (?, ?, ?)";
 
     public User create(User user) {
-        try (Connection conn = DbUtil.connect()) {
+        try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement =
                     conn.prepareStatement(CreateUser, Statement.RETURN_GENERATED_KEYS);  //RETURN_GENERATED_KEYS -> ogólna metoda!
             statement.setString(1, user.getUserName());
@@ -43,7 +43,7 @@ public class UserDao {
     public static final String readUser = "SELECT id, username, email, password FROM users WHERE id = ?";
 
     public User read(int userId) {
-        try (Connection conn = DbUtil.connect()) {
+        try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement statement = conn.prepareStatement(readUser);
             statement.setInt(1, userId);
             ResultSet resultSet = statement.executeQuery();
@@ -66,7 +66,7 @@ public class UserDao {
 
     public void update(User user) {
 
-        try (Connection conn = DbUtil.connect()) {
+        try (Connection conn = DbUtil.getConnection()) {
             PreparedStatement stm = conn.prepareStatement(updateQuery);
             stm.setString(1, user.getUserName()); // najpierw  w klasie USer za pomocą setterów ustawiamy nowe dane. Potem wywołujemy na obiekcie UserDAO metodę update i przekazujemy jej zmodyfikowany obiekt. Metoda pobierze dane z obiektu poprzez gettery i przekaże je jako paramet zapytania
             stm.setString(2, user.getEmail());
@@ -85,7 +85,7 @@ public class UserDao {
 
     public User[] readAllUsers() {
 
-        try (Connection conn = DbUtil.connect()) {
+        try (Connection conn = DbUtil.getConnection()) {
             User[] users = new User[0];
             PreparedStatement stm = conn.prepareStatement(findAllCustomersQuery);
             ResultSet result = stm.executeQuery();
@@ -112,7 +112,7 @@ public class UserDao {
 
     private static final String deleteQuery = "DELETE FROM users WHERE id=?";
     public void delete(int userId){
-        try(Connection conn = DbUtil.connect()){
+        try(Connection conn = DbUtil.getConnection()){
             PreparedStatement stm = conn.prepareStatement(deleteQuery);
             stm.setInt(1, userId);
             stm.executeUpdate();
